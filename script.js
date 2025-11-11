@@ -42,11 +42,12 @@ const CATALOG_ITEMS = [
 ];
 
 /**
- * Adiciona listeners aos botões "Ver Detalhes" para popular o modal dinamicamente
- */
+* Adiciona listeners aos botões "Ver Detalhes" para popular o modal dinamicamente
+*/
 const modalElement = document.querySelector('#detalheModal');
 const modalTitle = modalElement.querySelector('.modal-title');
 const modalBody = modalElement.querySelector('.modal-body');
+const modalAction = modalElement.querySelector('.btn-success');
 
 // 1. Ouvinte para popular o modal ANTES de ser exibido
 modalElement.addEventListener('show.bs.modal', function (event) {
@@ -55,12 +56,12 @@ modalElement.addEventListener('show.bs.modal', function (event) {
     const itemId = parseInt(button.getAttribute('data-item-id'));
     // Procura pelo ID do item clickado no vetor "CATALOG_ITEMS"
     const item = CATALOG_ITEMS.find(i => i.id === itemId);
-
+    
     // Se o item foi encontrado no vetor "CATALOG_ITEMS"
     if (item) {
         // Atualiza o Título do Modal
         modalTitle.textContent = item.titulo;
-
+        
         // Cria o HTML de detalhes 
         let detailsHTML = `
         <p class="mb-1"><strong>Categoria:</strong> <span class="badge bg-secondary">${item.categoria}</span></p>
@@ -68,5 +69,45 @@ modalElement.addEventListener('show.bs.modal', function (event) {
         <hr>
         <p>${item.detalhes}</p>
     `;
+        
+        //Adiciona campos específicos por categoria
+        if (item.categoria === 'Livros') {
+            detailsHTML += `<p><strong>Autor:</strong> ${item.autor}</p>`;
+            detailsHTML += `<p><strong>Lançamento:</strong> ${item.lancamento}</p>`;
+            detailsHTML += `<p class="text-info"><strong>Estoque Disponível:</strong> ${item.estoque} unidades</p>`;
+        } else if (item.categoria === 'Artesanato') {
+            detailsHTML += `<p><strong>Material:</strong> ${item.material}</p>`;
+            detailsHTML += `<p><strong>Dimensões/comprimento:</strong> ${item.dimensoes || item.comprimento}</p>`;
+            detailsHTML += `<p class="text-info"><strong>Peças Exclusivas em Estoque:</strong> ${item.estoque}</p>`;
+        }
+
+        modalBody.innerHTML = detailsHTML;
+        
+        // Ao clicar no botão "Adicionar ao carrinho"
+        modalAction.onclick = () => {
+            console.log(`Ação: Item '${item.titulo}' (ID: $item.id}) adicionado ao carrinho.`);
+            // Em uma aplicação real, você faria uma chamada de API aqui.
+            // Para este exemplo, apenas fechamos o modal e mostramos o log.
+            const bsModal = bootstrap.Modal.getInstance(modalElement);
+            if(bsModal) bsModal.hide();
+        }; 
+    }
+});
+
+// 2. Ouvinte para a funcionalidade de busca (simples)
+const searchInput = document.getElementById('search-input');
+const searchButton = document.getElementById('search-button');
+const item = document.querySelector('.item-catalogo');
+
+function executarPesquisa(event){
+    
+}
+
+searchButton.addEventListener('click', executarPesquisa);
+searchInput.addEventListener('keyup',(event) => {
+    if (event.key === 'Enter') {
+        executaePesquisa(event);
+    } else if (searchInput.ariaValueMax.trim() === "") {
+        executarPesquisa(event);
     }
 });
