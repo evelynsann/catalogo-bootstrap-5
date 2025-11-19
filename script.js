@@ -85,6 +85,7 @@ modalElement.addEventListener('show.bs.modal', function (event) {
         
         // Ao clicar no botão "Adicionar ao carrinho"
         modalAction.onclick = () => {
+            adicionarItemCarrinho(item.id);
             console.log(`Ação: Item '${item.titulo}' (ID: $item.id}) adicionado ao carrinho.`);
             // Em uma aplicação real, você faria uma chamada de API aqui.
             // Para este exemplo, apenas fechamos o modal e mostramos o log.
@@ -164,7 +165,7 @@ function obterCarrinhoDoNavegador() {
     return[];
 }
 
-functionsalvarCookieCarrinho(itensCarrinho) {
+function salvarCookieCarrinho(itensCarrinho) {
     try {
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(itensCarrinho));
     } catch (e) {
@@ -172,9 +173,51 @@ functionsalvarCookieCarrinho(itensCarrinho) {
     }
 }
 
+function atualizarContadorCarrinho(){
+    const carrinho = obterCarrinhoDoNavegador();
+    const carrinhoBadge = document.getElementById("cart-count");
+    if (carrinhoBadge) {
+        carrinhoBadge.textContent = carrinho.length;
+        if (carrinho.length > 0) {
+            carrinhoBadge.classList.remove('d-none');
+        } else {
+            carrinhoBadge.classList.add('d-none');
+        }
+    }
+}
+
 function adicionarItemCarrinho(itemId) {
     const carrinho = obterCarrinhoDoNavegador();
     carrinho.push(itemId);
-    salvarCookieCarrinho();
+    salvarCookieCarrinho(carrinho);
     atualizarContadorCarrinho();
 }
+
+atualizarContadorCarrinho();
+
+const carrinho_btn = document.getElementById("cart-button");
+carrinho_btn.addEventListener("click", function() {
+    const carrinho_secao = document.getElementById("cart-section");
+    carrinho_secao.classList.toggle("d-none");
+
+    if (carrinho_secao.classList.contains("d-none")) {
+        return;
+    }
+    const carrinho_recibo = document.getElementById("cart-list");
+    carrinho_recibo.innerHTML = "";
+    const itensCarrinho = obterCarrinhoDoNavegador();
+
+    itensCarrinho.forEach(itemId => { 
+
+        const li = document.createElement("li");
+        li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+        li.innerHTML = `
+            <div>
+                <h6 class="mb-1">${item.titulo}>/h6>
+            </div>
+            <span class="fw-bold text-success">${formatCurrency(item.preco)}</span>
+        `;
+
+        carrinho_recibo.appendChild(li);
+    });
+});
